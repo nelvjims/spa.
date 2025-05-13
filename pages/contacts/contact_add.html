@@ -1,141 +1,17 @@
-<style>
-    :root {
-        --primary-color: #2185d0;
-        --primary-light: #54a0ff;
-        --primary-dark: #0a67b3;
-        --success-color: #10B981;
-        --error-color: #EF4444;
-        --text-color: #1F2937;
-        --text-light: #6B7280;
-        --background: #F8FAFC;
-        --card-bg: #FFFFFF;
-        --border-radius: 12px;
-        --shadow-sm: 0 2px 4px rgba(33, 133, 208, 0.05);
-        --shadow-md: 0 4px 12px rgba(33, 133, 208, 0.08);
-        --shadow-lg: 0 8px 24px rgba(33, 133, 208, 0.12);
-    }
-
-    .content-wrapper {
-        max-width: 1200px;
-        margin: 2rem auto;
-        padding: 2rem;
-        background: var(--card-bg);
-        border-radius: var(--border-radius);
-        box-shadow: var(--shadow-lg);
-        animation: fadeIn 0.3s ease-out;
-    }
-
-    .page-header {
-        margin-bottom: 2rem;
-        padding-bottom: 1rem;
-        border-bottom: 2px solid rgba(33, 133, 208, 0.1);
-    }
-
-    .page-header h2 {
-        color: var(--text-color);
-        font-size: 1.8rem;
-        font-weight: 600;
-    }
-
-    .ui.form .field {
-        margin-bottom: 1.5rem;
-    }
-
-    .ui.form .field label {
-        color: var(--text-color);
-        font-weight: 500;
-        margin-bottom: 0.5rem;
-        display: block;
-    }
-
-    .ui.form input,
-    .ui.form textarea {
-        border: 2px solid rgba(33, 133, 208, 0.2);
-        border-radius: var(--border-radius);
-        padding: 0.8em 1em;
-        width: 100%;
-        transition: all 0.3s ease;
-    }
-
-    .ui.form input:hover,
-    .ui.form textarea:hover {
-        border-color: rgba(33, 133, 208, 0.4);
-    }
-
-    .ui.form input:focus,
-    .ui.form textarea:focus {
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 3px rgba(33, 133, 208, 0.15);
-        outline: none;
-    }
-
-    .ui.message {
-        margin-bottom: 1.5rem;
-        padding: 1rem;
-        border-radius: var(--border-radius);
-        border: none;
-        animation: slideIn 0.3s ease-out;
-    }
-
-    .ui.success.message {
-        background: rgba(16, 185, 129, 0.1);
-        color: #065F46;
-    }
-
-    .ui.error.message {
-        background: rgba(239, 68, 68, 0.1);
-        color: #991B1B;
-    }
-
-    .submit-button {
-        background: var(--primary-color);
-        color: white;
-        padding: 0.8em 1.5em;
-        border-radius: var(--border-radius);
-        border: none;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    .submit-button:hover {
-        background: var(--primary-dark);
-        transform: translateY(-1px);
-        box-shadow: var(--shadow-md);
-    }
-
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(-10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes slideIn {
-        from { opacity: 0; transform: translateX(-10px); }
-        to { opacity: 1; transform: translateX(0); }
-    }
-
-    @media (max-width: 768px) {
-        .content-wrapper {
-            margin: 1rem;
-            padding: 1rem;
-        }
-    }
-</style>
-
 <div class="content-wrapper" x-data="{ 
-    product: {
+    contact: {
         name: '',
-        description: '',
-        price: '',
-        stock: '',
-        image: ''
+        email: '',
+        phone: '',
+        address: '',
+        notes: ''
     },
     message: '',
     messageClass: '',
 
-    addProduct() {
-        const url = `${Alpine.store('settings').apiBaseUrl}/products/`;
-        console.log('Adding product:', this.product);
+    addContact() {
+        const url = `${Alpine.store('settings').apiBaseUrl}/contacts/`;
+        console.log('Adding contact:', this.contact);
         
         fetch(url, {
             method: 'POST',
@@ -143,75 +19,71 @@
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
             },
-            body: JSON.stringify({
-                ...this.product,
-                price: parseFloat(this.product.price),
-                stock: parseInt(this.stock)
-            })
+            body: JSON.stringify(this.contact)
         })
         .then(response => {
             if (!response.ok) {
                 return response.text().then(text => {
-                    throw new Error(text || 'Failed to add product');
+                    throw new Error(text || 'Failed to add contact');
                 });
             }
             return response.json();
         })
         .then(data => {
-            console.log('Product added:', data);
-            this.message = 'Product added successfully!';
+            console.log('Contact added:', data);
+            this.message = 'Contact added successfully!';
             this.messageClass = 'ui success message';
-            this.product = {name: '', description: '', price: '', stock: '', image: ''};
+            this.contact = {name: '', email: '', phone: '', address: '', notes: ''};
             
-            // Optionally navigate to product list after success
-            setTimeout(() => navigateTo('product/product_display'), 1500);
+            // Optionally navigate to contact list
+            setTimeout(() => navigateTo('contact/contact_display'), 1500);
         })
         .catch(error => {
             console.error('Error:', error);
-            this.message = `Failed to add product: ${error.message}`;
+            this.message = `Failed to add contact: ${error.message}`;
             this.messageClass = 'ui error message';
         });
     }
 }">
     <div class="ui segment">
-        <h2 class="ui header">Add New Product</h2>
-        
+        <h2 class="ui header">Add New Contact</h2>
+
         <!-- Message display -->
         <div x-show="message" :class="messageClass" x-text="message"></div>
 
-        <!-- Product form -->
-        <form class="ui form" @submit.prevent="addProduct">
+        <!-- Contact form -->
+        <form class="ui form" @submit.prevent="addContact">
             <div class="field">
-                <label>Product Name</label>
-                <input type="text" x-model="product.name" placeholder="Enter product name" required>
-            </div>
-
-            <div class="field">
-                <label>Description</label>
-                <textarea x-model="product.description" placeholder="Enter product description" required></textarea>
+                <label>Full Name</label>
+                <input type="text" x-model="contact.name" placeholder="Enter full name" required>
             </div>
 
             <div class="two fields">
                 <div class="field">
-                    <label>Price ($)</label>
-                    <input type="number" x-model="product.price" step="0.01" min="0" placeholder="0.00" required>
+                    <label>Email</label>
+                    <input type="email" x-model="contact.email" placeholder="example@example.com" required>
                 </div>
 
                 <div class="field">
-                    <label>Stock</label>
-                    <input type="number" x-model="product.stock" min="0" placeholder="0" required>
+                    <label>Phone Number</label>
+                    <input type="tel" x-model="contact.phone" placeholder="e.g. +63 912 345 6789" required>
                 </div>
             </div>
 
             <div class="field">
-                <label>Image URL (Optional)</label>
-                <input type="url" x-model="product.image" placeholder="https://example.com/image.jpg">
+                <label>Address</label>
+                <input type="text" x-model="contact.address" placeholder="Enter address">
+            </div>
+
+            <div class="field">
+                <label>Notes</label>
+                <textarea x-model="contact.notes" placeholder="Additional notes (optional)"></textarea>
             </div>
 
             <div class="ui buttons">
-                <button class="ui primary button" type="submit">Add Product</button>
+                <button class="ui primary button" type="submit">Add Contact</button>
                 <div class="or"></div>
-                <button class="ui button" type="button" @click="navigateTo('product/product_display')">Cancel</button>
+                <button class="ui button" type="button" @click="navigateTo('contact/contact_display')">Cancel</button>
             </div>
         </form>
     </div>
